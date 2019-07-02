@@ -2,54 +2,98 @@
 #define PARTICLE_PTYPES_H
 #include "../types.hpp"
 #include "../inibin.h"
+#include <variant>
 
 namespace RitoParticle {
+    template<typename T>
+    struct TimeValue {
+        float time;
+        T value;
+    };
+
+    template<typename T>
+    inline T EvalTimeValues(std::vector<TimeValue<T>> const& value, float time, T base) noexcept {
+        if(value.empty()) {
+            return base;
+        }
+        if(auto f = std::find_if(value.begin(), value.end(), [time](const auto& v){
+            return v.time > time;
+        }); f == value.end()) {
+            return value.back().value;
+        } else if(f == value.begin()) {
+            return value.front().value;
+        } else {
+            auto const last_time = (f - 1)->time;
+            auto const last_value = (f - 1)->value;
+            auto const delta_time = f->time - last_time;
+            auto const factor = (time - last_time) / delta_time;
+            auto const delta_value = f->value - last_value;
+            return ((delta_value * factor) + last_value) * base;
+        }
+    }
+
+    struct FlatLine {
+        float base;
+        float delta;
+    };
+
     struct PTable {
-        struct FlatLine {
-            float base;
-            float delta;
-        };
-        struct ValueTime {
-            float value;
-            float time;
-        };
-        std::variant<float, FlatLine, std::vector<ValueTime>> value = { 1.0f };
+        std::variant<float, FlatLine, std::vector<TimeValue<float>>> value = { 1.0f };
+        float eval(float time) const {
+            return std::visit([time](auto&& value) -> float {
+                using T = std::decay_t<decltype(value)>;
+                if constexpr(std::is_same_v<T, float>) {
+                    return value;
+                } else if constexpr(std::is_same_v<T, FlatLine>) {
+                    return value.delta * time + value.base;
+                } else {
+                    return EvalTimeValues(value, time, 1.0f);
+                }
+            }, value);
+        }
     };
 
     extern bool ini_get(Ini const& ini, IniHash h, PTable& val) noexcept;
 
     template<typename T, size_t AXES>
     struct PVar {
-        T base;
-        std::array<T, 256> ramp;
-        std::vector<float> key_times;
-        std::vector<T> key_values;
-        std::array<std::optional<PTable>, AXES> ptables;
+        T base = {};
+        std::array<T, 256> ramp = {};
+        std::vector<TimeValue<T>> values = {};
+        std::array<std::optional<PTable>, AXES> ptables = {};
+
         inline void build_ramp() noexcept {
-            int i = 0;
-            for(auto& r: ramp) {
-                r = eval_anim_ex(i * (1.0f / 256.0f));
-                ++i;
-            }
-        }
-        inline T eval_anim_ex(float time) const {
-            size_t idx = 0;
-            size_t count = key_times.size();
-            if(count == 0) {
-                return base;
-            }
-            for(idx = 1; idx < count && key_times[idx] <= time; ++idx);
-            if(idx == count) {
-                if(key_times[0] > time) {
-                    idx = 0;
-                } else {
-                    idx = count - 1;
+            if constexpr(!std::is_same_v<T,float>) {
+                if(values.size()) {
+                    int i = 0;
+                    for(auto& r: ramp) {
+                        r = EvalTimeValues(values, i * (1.0f / 256.0f), base);
+                        ++i;
+                    }
                 }
             }
         }
+
         inline T eval(float time = 0.0f, float randomv = 0.0f) const noexcept {
-            // TODO: implement this
-            return T{};
+            auto result = base;
+            if constexpr(std::is_same_v<T,float>) {
+                if(values.size()) {
+                    result = EvalTimeValues(values, time, base);
+                }
+                if(auto const& p = ptables[0]; p) {
+                    result = result * p.value().eval(randomv);
+                }
+            } else {
+                if(values.size()) {
+                    result = ramp[static_cast<uint8_t>(time * 256.0f)];
+                }
+                for (size_t i = 0; i < AXES; i++) {
+                    if (auto const &p = ptables[i]; p) {
+                        result[i] = result[i] * p.value().eval(randomv);
+                    }
+                }
+            }
+            return result;
         }
     };
 
