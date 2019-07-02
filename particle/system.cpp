@@ -23,14 +23,12 @@ bool RitoParticle::System::load(const Ini &ini) noexcept {
             sprintf_s(buffer, sizeof(buffer), "GroupPart%uType", i);
             auto const type = ini[h * buffer].as_or<std::string>("Complex");
             if(type == "Simple") {
-                SimpleParticle value{};
+                auto& value = simple.emplace_back();
                 value.importance = importance;
 
                 value.load(ini, name.value());
-
-                simple.push_back(std::move(value));
             } else {
-                ComplexEmitter value{};
+                auto& value = complex.emplace_back();
                 value.importance = importance;
 
                 value.load(ini, name.value());
@@ -43,8 +41,6 @@ bool RitoParticle::System::load(const Ini &ini) noexcept {
 
                 sprintf_s(buffer, sizeof(buffer), "Override-Scale%u", i);
                 value.overrideScale = ini[h * buffer].as_or<Vec3>();
-
-                complex.push_back(std::move(value));
             }
         } else {
             break;

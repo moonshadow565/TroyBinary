@@ -50,9 +50,9 @@ struct File {
 
 template<typename T, bool mult = false>
 int read_numbers(File const& file, IniMap& ini) noexcept {
-    uint16_t count;
-    std::vector<uint32_t> hashes;
-    std::vector<T> values;
+    uint16_t count = {};
+    std::vector<uint32_t> hashes{};
+    std::vector<T> values{};
     if(!file.read(count)) {
         return -1;
     }
@@ -74,9 +74,9 @@ int read_numbers(File const& file, IniMap& ini) noexcept {
 
 template<typename T, size_t size, bool mult = false>
 int read_array(File const& file, IniMap& ini) noexcept {
-    uint16_t count;
-    std::vector<uint32_t> hashes;
-    std::vector<std::array<T, size>> values;
+    uint16_t count{};
+    std::vector<uint32_t> hashes{};
+    std::vector<std::array<T, size>> values{};
     if(!file.read(count)) {
         return -1;
     }
@@ -101,9 +101,9 @@ int read_array(File const& file, IniMap& ini) noexcept {
 }
 
 int read_bools(File const& file, IniMap& ini) noexcept {
-    uint16_t count = 0;
-    std::vector<uint32_t> hashes;
-    std::vector<uint8_t> data;
+    uint16_t count{};
+    std::vector<uint32_t> hashes{};
+    std::vector<uint8_t> data{};
     if(!file.read(count)) {
         return -1;
     }
@@ -122,9 +122,9 @@ int read_bools(File const& file, IniMap& ini) noexcept {
 
 int read_strings(File const& file, IniMap& ini,
                         size_t data_size) noexcept {
-    uint16_t count = 0;
-    std::vector<uint32_t> hashes;
-    std::vector<uint16_t> offsets;
+    uint16_t count{};
+    std::vector<uint32_t> hashes{};
+    std::vector<uint16_t> offsets{};
     std::vector<char> data;
     if(!file.read(count)) {
         return -1;
