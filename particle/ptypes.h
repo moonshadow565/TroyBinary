@@ -23,12 +23,12 @@ namespace RitoParticle {
         } else if(f == value.begin()) {
             return value.front().value;
         } else {
-            auto const last_time = (f - 1)->time;
-            auto const last_value = (f - 1)->value;
-            auto const delta_time = f->time - last_time;
-            auto const factor = (time - last_time) / delta_time;
-            auto const delta_value = f->value - last_value;
-            return ((delta_value * factor) + last_value) * base;
+            auto const first_time = (f - 1)->time;
+            auto const first_value = (f - 1)->value;
+            auto const delta_time = f->time - first_time;
+            auto const factor = (time - first_time) / delta_time;
+            auto const delta_value = f->value - first_value;
+            return ((delta_value * factor) + first_value) * base;
         }
     }
 
