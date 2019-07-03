@@ -277,7 +277,7 @@ static inline bool ini_get_flex_p(Ini const& ini, IniHash h, Flex<T>& val) {
          "_flex0", "_flex1", "_flex2", "_flex3"
     };
     size_t idx = 0;
-    auto const defval = val.value.eval();
+    auto const defval = val.value.eval_anim(0.0f);
     for(auto const prefix: prefixes) {
         if(auto r = ini[h + prefix].as<T>(defval); r) {
             val.value = *r;

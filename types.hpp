@@ -153,6 +153,11 @@ inline auto operator - (Vec2 const& l, Vec2 const&  r) {
 struct Mtx44 {
     float m[4][4] = {};
 };
+struct Box3D {
+    Vec3 min;
+    Vec3 max;
+};
+
 
 #define ColorFInf ColorF{INFINITY, INFINITY, INFINITY, INFINITY}
 #define Vec4Inf Vec4{INFINITY, INFINITY, INFINITY, INFINITY}

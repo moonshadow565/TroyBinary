@@ -18,5 +18,13 @@ add_executable(TroyBinary
     particle/ptypes.cpp
     particle/simple.h
     particle/simple.cpp
+    particle/instance/complex.h
+    particle/instance/complex.cpp
+    particle/instance/field.h
+    particle/instance/field.cpp
+    particle/instance/group.h
+    particle/instance/group.cpp
+    particle/instance/simple.h
+    particle/instance/simple.cpp
 )
 

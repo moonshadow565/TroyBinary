@@ -12,7 +12,7 @@ namespace RitoParticle {
     };
 
     template<typename T>
-    inline T EvalTimeValues(std::vector<TimeValue<T>> const& value, float time, T base) noexcept {
+    inline T EvalTimeValues(std::vector<TimeValue<T>> const& value, T base, float time) noexcept {
         if(value.empty()) {
             return base;
         }
@@ -39,7 +39,8 @@ namespace RitoParticle {
 
     struct PTable {
         std::variant<float, FlatLine, std::vector<TimeValue<float>>> value = { 1.0f };
-        float eval(float time) const {
+        float eval(std::optional<float> randomv) const {
+            float time = randomv.value_or(rand() / 32767.0f);
             return std::visit([time](auto&& value) -> float {
                 using T = std::decay_t<decltype(value)>;
                 if constexpr(std::is_same_v<T, float>) {
@@ -47,7 +48,7 @@ namespace RitoParticle {
                 } else if constexpr(std::is_same_v<T, FlatLine>) {
                     return value.delta * time + value.base;
                 } else {
-                    return EvalTimeValues(value, time, 1.0f);
+                    return EvalTimeValues(value, 1.0f,  time);
                 }
             }, value);
         }
@@ -67,33 +68,42 @@ namespace RitoParticle {
                 if(values.size()) {
                     int i = 0;
                     for(auto& r: ramp) {
-                        r = EvalTimeValues(values, i * (1.0f / 256.0f), base);
+                        r = EvalTimeValues(values, base, i * (1.0f / 256.0f));
                         ++i;
                     }
                 }
             }
         }
 
-        inline T eval(float time = 0.0f, float randomv = 0.0f) const noexcept {
-            auto result = base;
+        inline T apply_probability(T value, std::optional<float> randomv) const noexcept {
             if constexpr(std::is_same_v<T,float>) {
-                if(values.size()) {
-                    result = EvalTimeValues(values, time, base);
-                }
                 if(auto const& p = ptables[0]; p) {
-                    result = result * p.value().eval(randomv);
+                    value = value * p.value().eval(randomv);
                 }
             } else {
-                if(values.size()) {
-                    result = ramp[static_cast<uint8_t>(time * 256.0f)];
-                }
                 for (size_t i = 0; i < AXES; i++) {
                     if (auto const &p = ptables[i]; p) {
-                        result[i] = result[i] * p.value().eval(randomv);
+                        value[i] = value[i] * p.value().eval(randomv);
                     }
                 }
             }
-            return result;
+            return value;
+        }
+
+        inline T eval_anim(float time) const noexcept {
+            if(values.empty()) {
+                return base;
+            } else {
+                if constexpr(std::is_same_v<T,float>) {
+                    return EvalTimeValues(values, base, time);
+                } else {
+                    return ramp[static_cast<uint8_t>(time * 256.0f)];
+                }
+            }
+        }
+
+        inline T eval(float time, std::optional<float> randv) const noexcept {
+            return apply_probability(eval_anim(time), randv);
         }
     };
 
