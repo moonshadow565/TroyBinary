@@ -6,6 +6,14 @@
 #include <variant>
 #include <optional>
 
+struct ColorF;
+struct Vec4;
+struct Vec3;
+struct Vec2;
+struct Mtx44;
+struct Box3D;
+
+
 struct ColorF {
     float r,g,b,a;
     inline constexpr static size_t size = 4;
@@ -151,12 +159,36 @@ inline auto operator - (Vec2 const& l, Vec2 const&  r) {
 }
 
 struct Mtx44 {
+    using array_t = float[4];
     float m[4][4] = {};
+    inline array_t& operator[](size_t index) & {
+        return m[index];
+    }
+    inline array_t const& operator[](size_t index) const& {
+        return m[index];
+    }
 };
+
 struct Box3D {
     Vec3 min;
     Vec3 max;
 };
+
+inline auto TransformNormal(Vec2 const& vec, Mtx44 const& mtx) {
+    return Vec2 {
+        mtx[0][0] * vec.x + mtx[1][0] * vec.y,
+        mtx[0][1] * vec.x + mtx[1][1] * vec.y,
+    };
+}
+
+inline auto TransformNormal(Vec3 const& vec, Mtx44 const& mtx) {
+    return Vec3 {
+        mtx[0][0] * vec.x + mtx[1][0] * vec.y + mtx[2][0] * vec.z,
+        mtx[0][1] * vec.x + mtx[1][1] * vec.y + mtx[2][1] * vec.z,
+        mtx[0][2] * vec.x + mtx[1][2] * vec.y + mtx[2][2] * vec.z,
+    };
+}
+
 
 
 #define ColorFInf ColorF{INFINITY, INFINITY, INFINITY, INFINITY}

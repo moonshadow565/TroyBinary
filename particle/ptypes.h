@@ -40,7 +40,7 @@ namespace RitoParticle {
     struct PTable {
         std::variant<float, FlatLine, std::vector<TimeValue<float>>> value = { 1.0f };
         float eval(std::optional<float> randomv) const {
-            float time = randomv.value_or(rand() / 32767.0f);
+            float time = randomv.value_or(rand() / static_cast<float>(RAND_MAX));
             return std::visit([time](auto&& value) -> float {
                 using T = std::decay_t<decltype(value)>;
                 if constexpr(std::is_same_v<T, float>) {
@@ -68,14 +68,16 @@ namespace RitoParticle {
                 if(values.size()) {
                     int i = 0;
                     for(auto& r: ramp) {
-                        r = EvalTimeValues(values, base, i * (1.0f / 256.0f));
+                        float const time_factor = 1.0f / static_cast<float>(ramp.size());
+                        r = EvalTimeValues(values, base, i * time_factor);
                         ++i;
                     }
                 }
             }
         }
 
-        inline T apply_probability(T value, std::optional<float> randomv) const noexcept {
+        inline T apply_probability(T value,
+                                   std::optional<float> randomv = std::nullopt) const noexcept {
             if constexpr(std::is_same_v<T,float>) {
                 if(auto const& p = ptables[0]; p) {
                     value = value * p.value().eval(randomv);
@@ -97,12 +99,12 @@ namespace RitoParticle {
                 if constexpr(std::is_same_v<T,float>) {
                     return EvalTimeValues(values, base, time);
                 } else {
-                    return ramp[static_cast<uint8_t>(time * 256.0f)];
+                    return ramp[static_cast<uint8_t>(time * static_cast<float>(ramp.size()))];
                 }
             }
         }
 
-        inline T eval(float time, std::optional<float> randv) const noexcept {
+        inline T eval(float time, std::optional<float> randv = std::nullopt) const noexcept {
             return apply_probability(eval_anim(time), randv);
         }
     };
