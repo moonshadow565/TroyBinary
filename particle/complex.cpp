@@ -3,7 +3,6 @@
 bool RitoParticle::ComplexParticle::load(const Ini &ini,
                                          const std::string &name,
                                          ComplexEmitter* emitter) noexcept {
-    this->emitter = emitter;
     this->name = name;
     IniHash const h = name;
 

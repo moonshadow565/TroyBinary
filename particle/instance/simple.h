@@ -1,5 +1,5 @@
-#ifndef SIMPLE_H
-#define SIMPLE_H
+#ifndef RITO_PARTICLE_INSTANCE_SIMPLE_H
+#define RITO_PARTICLE_INSTANCE_SIMPLE_H
 
 #include "../simple.h"
 namespace RitoParticle {
@@ -12,4 +12,4 @@ namespace RitoParticle {
 
 
 
-#endif // SIMPLE_H
+#endif // RITO_PARTICLE_INSTANCE_SIMPLE_H

@@ -1,3 +1,3 @@
-#include "group.h"
+#include "system.h"
 
 using namespace RitoParticle;

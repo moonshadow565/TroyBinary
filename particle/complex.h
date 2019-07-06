@@ -9,7 +9,6 @@ namespace RitoParticle {
     struct ComplexEmitter;
     struct ComplexParticle {
         std::string name;
-        ComplexEmitter* emitter;
         int32_t startFrame;
         int32_t numFrames;
         float frameRate;
@@ -125,10 +124,6 @@ namespace RitoParticle {
         // FlexPFloat flexBirthVelocity; CHECKME: never loaded
         std::optional<FluidsDef> fluid;
 
-        Vec3 overrideTranslation;
-        Vec3 overrideRotation;
-        Vec3 overrideScale;
-        Importance importance;
         bool load(Ini const& ini,
                   std::string const& name) noexcept;
 

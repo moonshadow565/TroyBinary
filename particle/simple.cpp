@@ -6,7 +6,6 @@ bool SimpleEmitter::load(const Ini &ini, const std::string &name,
                          SimpleParticle* particle) noexcept {
     this->name = name;
     IniHash const h = name;
-    this->particle = particle;
 
     // TODO: keywords stuff
 

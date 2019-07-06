@@ -1,14 +1,14 @@
-#ifndef FIELD_H
-#define FIELD_H
+#ifndef RITO_PARTICLE_INSTANCE_FIELD_H
+#define RITO_PARTICLE_INSTANCE_FIELD_H
 #include "../fields.h"
 
 namespace RitoParticle {
     struct FieldAccelerationInstance {
-        FieldAcceleration* definition;
+        FieldAcceleration const* definition;
         Vec3 accelerationProbability;
         Vec3 currentAcceleration;
 
-        FieldAccelerationInstance(FieldAcceleration * def)
+        FieldAccelerationInstance(FieldAcceleration const* def)
             : definition(def),
               accelerationProbability({1.f, 1.f, 1.f}),
               currentAcceleration({})
@@ -26,7 +26,7 @@ namespace RitoParticle {
     };
 
     struct FieldAttractionInstance {
-        FieldAttraction* definition;
+        FieldAttraction const* definition;
         Vec3 positionProbability;
         Vec3 currentPosition;
         float accelerationProbability;
@@ -34,7 +34,7 @@ namespace RitoParticle {
         float radiusProbability;
         float currentRadius;
 
-        FieldAttractionInstance(FieldAttraction* def)
+        FieldAttractionInstance(FieldAttraction const* def)
             : definition(def),
               positionProbability({1.f, 1.f, 1.f}),
               currentPosition({}),
@@ -61,7 +61,7 @@ namespace RitoParticle {
     };
 
     struct FieldDragInstance {
-        FieldDrag* definition;
+        FieldDrag const* definition;
         Vec3 positionProbability;
         Vec3 currentPosition;
         float strengthProbability;
@@ -69,7 +69,7 @@ namespace RitoParticle {
         float radiusProbability;
         float currentRadius;
 
-        FieldDragInstance(FieldDrag* def)
+        FieldDragInstance(FieldDrag const* def)
             : definition(def),
               positionProbability({1.f, 1.f, 1.f}),
               currentPosition({}),
@@ -96,7 +96,7 @@ namespace RitoParticle {
     };
 
     struct FieldNoiseInstance {
-        FieldNoise* definition;
+        FieldNoise const* definition;
         Vec3 positionProbability;
         Vec3 currentPosition;
         float radiusProbability;
@@ -108,7 +108,7 @@ namespace RitoParticle {
         float lastPulseTime;
         uint32_t numPulsesSinceLastEval;
 
-        FieldNoiseInstance(FieldNoise *def)
+        FieldNoiseInstance(FieldNoise const* def)
             : definition(def),
               positionProbability({1.f, 1.f, 1.f}),
               currentPosition({}),
@@ -144,7 +144,7 @@ namespace RitoParticle {
                 auto const tmp1 = lastPulseTime / currentPeriod;
                 auto const tmp2 = currentTime / currentPeriod;
                 numPulsesSinceLastEval = tmp2 - tmp1;
-                if(numPulsesSinceLastEval) {
+                if(tmp2 != tmp1) {
                     lastPulseTime = currentTime;
                 }
             }
@@ -152,11 +152,11 @@ namespace RitoParticle {
     };
 
     struct FieldObitalInstance {
-        FieldOrbital* definition;
+        FieldOrbital const* definition;
         Vec3 directionProbability;
         Vec3 currentDirection;
 
-        FieldObitalInstance(FieldOrbital* def)
+        FieldObitalInstance(FieldOrbital const* def)
             : definition(def),
               directionProbability({1.f, 1.f, 1.f}),
               currentDirection({})
@@ -179,7 +179,7 @@ namespace RitoParticle {
     };
 
     struct FluidsInstance {
-        FluidsDef* definition;
+        FluidsDef const* definition;
         // textures
         Vec3 appliedVelocity;
         Vec2 lastAppliedForce;
@@ -192,4 +192,4 @@ namespace RitoParticle {
 }
 
 
-#endif // FIELD_H
+#endif // RITO_PARTICLE_INSTANCE_FIELD_H

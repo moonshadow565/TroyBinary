@@ -22,9 +22,9 @@ add_executable(TroyBinary
     particle/instance/complex.cpp
     particle/instance/field.h
     particle/instance/field.cpp
-    particle/instance/group.h
-    particle/instance/group.cpp
     particle/instance/simple.h
     particle/instance/simple.cpp
+    particle/instance/system.h
+    particle/instance/system.cpp
 )
 

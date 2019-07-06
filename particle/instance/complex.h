@@ -1,9 +1,11 @@
-#ifndef COMPLEX_H
-#define COMPLEX_H
+#ifndef RITO_PARTICLE_INSTANCE_COMPLEX_H
+#define RITO_PARTICLE_INSTANCE_COMPLEX_H
+
+#include "../complex.h"
 
 namespace RitoParticle {
 
 }
 
 
-#endif // COMPLEX_H
+#endif // RITO_PARTICLE_INSTANCE_COMPLEX_H

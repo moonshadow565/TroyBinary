@@ -9,8 +9,6 @@ namespace RitoParticle {
     struct SimpleParticle;
 
     struct SimpleEmitter {
-        SimpleParticle* particle;
-
         std::string name;                                // name ID of the emitter
         PFloat rate;                                     // number particles emitted per second
         PFloat particleLifetime;                         // lifetime of each particle
@@ -138,8 +136,6 @@ namespace RitoParticle {
         Vec2 texDiv;                                    // number of textures packed in the base texture in x and y
         std::vector<SimpleEmitter> emitters;            // list of emitters (always 1?)
         UvMode uvmode;                                  // uv coordinates mode (enum)
-
-        Importance importance;                          // importance level (probably for ordering? or for LOD)
 
         bool load(Ini const& ini, std::string const& name) noexcept;
         inline bool load(Ini const& ini, char const* name) noexcept {

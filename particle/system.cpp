@@ -20,27 +20,27 @@ bool RitoParticle::System::load(const Ini &ini) noexcept {
                 importance = Importance::NotWhenHigh;
             }
 
+            auto& part = parts.emplace_back();
+            part.importance = importance;
+
             sprintf_s(buffer, sizeof(buffer), "GroupPart%uType", i);
             auto const type = ini[h * buffer].as_or<std::string>("Complex");
+
             if(type == "Simple") {
-                auto& value = simple.emplace_back();
-                value.importance = importance;
-
-                value.load(ini, name.value());
+                auto& definition = part.definition.emplace<SimpleParticle>();
+                definition.load(ini, name.value());
             } else {
-                auto& value = complex.emplace_back();
-                value.importance = importance;
-
-                value.load(ini, name.value());
+                auto& definition = part.definition.emplace<ComplexEmitter>();
+                definition.load(ini, name.value());
 
                 sprintf_s(buffer, sizeof(buffer), "Override-Offset%u", i);
-                value.overrideTranslation = ini[h * buffer].as_or<Vec3>();
+                part.translation = ini[h * buffer].as_or<Vec3>();
 
                 sprintf_s(buffer, sizeof(buffer), "Override-Rotation%u", i);
-                value.overrideRotation = ini[h * buffer].as_or<Vec3>();
+                part.rotation = ini[h * buffer].as_or<Vec3>();
 
                 sprintf_s(buffer, sizeof(buffer), "Override-Scale%u", i);
-                value.overrideScale = ini[h * buffer].as_or<Vec3>();
+                part.scale = ini[h * buffer].as_or<Vec3>(1.f, 1.f, 1.f);
             }
         } else {
             break;
