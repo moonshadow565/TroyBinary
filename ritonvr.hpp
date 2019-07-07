@@ -4,15 +4,15 @@
 #include "types.hpp"
 
 struct RitoNVR {
-    enum class MaterialType : uint32_t {
-        Default,
-        Decal,
-        WallOfGrass,
-        FourBlend,
-        AntiBrush,
+    enum MaterialType : uint32_t {
+        Default = 0,
+        Decal = 1,
+        WallOfGrass = 2,
+        FourBlend = 3,
+        AntiBrush = 4,
     };
 
-    enum class MaterialFlags : uint32_t {
+    enum MaterialFlags : uint32_t {
         Ground = 0x01,
         NoShadow = 0x02,
         VertAlpha = 0x04,
@@ -41,6 +41,87 @@ struct RitoNVR {
         MaterialType type;
         MaterialFlags flags;
         std::array<Channel, 8> channels;
+    };
+
+    struct VertexBuffer {
+        enum VertexType : uint32_t {
+            Default = 0,
+            Position = 1,
+            Uv2 = 2,
+            Uv3 = 3,
+            Color2 = 4,
+            Decal = 5,
+            PosUv1 = 6,
+        };
+
+        struct VertexDefault {
+            std::array<float, 3> position;
+            std::array<float, 3> normal;
+            std::array<float, 2> textCoord0;
+            std::array<uint8_t, 4> color0;
+        };
+        struct VertexPosition {
+            std::array<float, 3> position;
+        };
+        struct VertexUV2 {
+            std::array<float, 3> position;
+            std::array<float, 3> normal;
+            std::array<float, 2> textCoord0;
+            std::array<float, 2> textCoord1;
+            std::array<uint8_t, 4> color0;
+        };
+        struct VertexUV3 {
+            std::array<float, 3> position;
+            std::array<float, 3> normal;
+            std::array<float, 2> textCoord0;
+            std::array<float, 2> textCoord1;
+            std::array<float, 2> textCoord2;
+            std::array<uint8_t, 4> color0;
+        };
+        struct VertexColor2 {
+            std::array<float, 3> position;
+            std::array<float, 3> normal;
+            std::array<float, 2> textCoord0;
+            std::array<uint8_t, 4> color0;
+            std::array<uint8_t, 4> color1;
+        };
+        struct VertexDecal {
+            std::array<float, 3> position;
+        };
+        struct VertexPositionUv1 {
+            std::array<float, 3> position;
+            std::array<float, 2> textCoord0;
+        };
+
+        inline constexpr static size_t VertexSizes[] = {
+            sizeof (VertexDefault),
+            sizeof (VertexPosition),
+            sizeof (VertexUV2),
+            sizeof (VertexUV3),
+            sizeof (VertexColor2),
+            sizeof (VertexDecal),
+            sizeof (VertexPositionUv1),
+        };
+
+        // if something called dipIndex is set to 1 then Type::Position is used instead
+        inline static constexpr VertexType typeFromMaterial(MaterialType type,
+                                                            MaterialFlags flags) noexcept {
+            switch (type) {
+                case MaterialType::Default:
+                    return flags & MaterialFlags::DualVtxColor ?
+                                VertexType::Color2 : VertexType::Default;
+                case MaterialType::Decal:
+                    return VertexType::Default;
+                case MaterialType::WallOfGrass:
+                    return VertexType::Default;
+                case MaterialType::FourBlend:
+                    return VertexType::Uv2;
+                case MaterialType::AntiBrush:
+                    return VertexType::Default;
+            }
+        }
+
+        std::vector<uint8_t> data;
     };
 
     struct Sphere {
@@ -87,7 +168,7 @@ struct RitoNVR {
 
     std::vector<MaterialOld> materialsOld;
     std::vector<Material> materials;
-    std::vector<std::vector<uint8_t>> vertexBuffers;
+    std::vector<VertexBuffer> vertexBuffers;
     std::vector<std::vector<uint32_t>> indexBuffers;
     std::vector<MeshOld> meshesOld;
     std::vector<Mesh> meshes;
@@ -126,7 +207,7 @@ struct RitoNVR {
             if(!file.read(size)) {
                 return  -6;
             }
-            if(auto& buffer = vertexBuffers.emplace_back(); !file.read(buffer, size)) {
+            if(auto& buffer = vertexBuffers.emplace_back(); !file.read(buffer.data, size)) {
                 return  -7;
             }
         }
