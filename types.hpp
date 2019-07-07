@@ -83,6 +83,12 @@ struct Box3D {
 #define Vec4Inf Vec4{INFINITY, INFINITY, INFINITY, INFINITY}
 #define Vec3Inf Vec3{INFINITY, INFINITY, INFINITY}
 #define Vec2Inf Vec2{INFINITY, INFINITY}
+#define Mtx44Zero Mtx44{ { \
+    { 1.f, 0.f, 0.f, 0.f }, \
+    { 0.f, 1.f, 0.f, 0.f }, \
+    { 0.f, 0.f, 1.f, 0.f }, \
+    { 0.f, 0.f, 0.f, 1.f }, \
+}}
 
 
 inline auto operator * (ColorF const& l, float r) {

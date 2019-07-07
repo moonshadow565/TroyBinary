@@ -21,7 +21,16 @@ int main()
     if(auto file = File::readb("room.nvr"); file) {
         RitoNVR nvr{};
         nvr.load(*file);
-        auto vtx = RitoNVRTest::dump_vtxs(nvr);
+        auto vtxs = nvr.dumpVtxs();
+        for(auto const& v: vtxs) {
+            std::visit([](auto&& v){
+                auto const count = v.endp - v.startp;
+                for(auto i = 0; i < count && i < 10; i++) {
+                    auto const& p = v.startp[i].position;
+                    printf("%f %f %f\n", p.x, p.y, p.z);
+                }
+            }, v);
+        }
     }
 
     if(auto file = File::readb("Akali_Attack1.anm"); file) {
