@@ -91,12 +91,15 @@ struct RitoNVR {
         Vec3 position;
         Vec2 textCoord0;
     };
+
     inline static constexpr VertexType VertexTypeFromMaterial(MaterialType type,
                                                               MaterialFlags flags) noexcept {
         switch (type) {
             case MaterialType::Default:
-                return flags & MaterialFlags::DualVtxColor ?
-                            VertexType::Color2 : VertexType::Default;
+                if(!(flags & MaterialFlags::DualVtxColor)) {
+                    return VertexType::Default;
+                }
+                return VertexType::Color2;
             case MaterialType::Decal:
                 return VertexType::Default;
             case MaterialType::WallOfGrass:
@@ -127,18 +130,18 @@ struct RitoNVR {
         uint32_t indexCount;
     };
     struct MeshOld {
-        int32_t m_QualityLevel;
+        int32_t qualityLevel;
         Sphere boundingSphere;
         Box3D boundingBox;
-        uint32_t m_Material;
+        uint32_t material;
         std::array<DrawIndexPrimitive, 2> drawIndexPrimitives;
     };
     struct Mesh {
-        int32_t m_QualityLevel;
-        uint32_t m_Flags;
+        int32_t qualityLevel;
+        uint32_t flags;
         Sphere boundingSphere;
         Box3D boundingBox;
-        uint32_t m_Material;
+        uint32_t material;
         std::array<DrawIndexPrimitive, 2> drawIndexPrimitives;
     };
 
@@ -235,5 +238,112 @@ struct RitoNVR {
         return 0;
     }
 };
+
+// Test NVR
+namespace RitoNVRTest{
+    struct VertexTotal {
+        Vec3 position;
+        Vec3 normal;
+        Vec2 textCoord0;
+        Vec2 textCoord1;
+        ColorB color0;
+        ColorB color1;
+
+        VertexTotal(RitoNVR::VertexPosition other) noexcept
+            : position(other.position),
+              normal({}),
+              textCoord0({}),
+              textCoord1({}),
+              color0({}),
+              color1({})
+        {}
+
+        VertexTotal(RitoNVR::VertexDefault other) noexcept
+            : position(other.position),
+              normal(other.normal),
+              textCoord0(other.textCoord0),
+              textCoord1({}),
+              color0(other.color0),
+              color1({})
+        {}
+
+        VertexTotal(RitoNVR::VertexUV2 other) noexcept
+            : position(other.position),
+              normal(other.normal),
+              textCoord0(other.textCoord0),
+              textCoord1(other.textCoord1),
+              color0(other.color0),
+              color1({})
+        {}
+
+        VertexTotal(RitoNVR::VertexColor2 other) noexcept
+            : position(other.position),
+              normal(other.normal),
+              textCoord0(other.textCoord0),
+              textCoord1({}),
+              color0(other.color0),
+              color1(other.color1)
+        {}
+    };
+
+    template<typename T>
+    inline void load_nvr_vtx(RitoNVR const& nvr, std::vector<VertexTotal>& vtx,
+                      uint32_t vertexBuffer, uint32_t firstVertex, uint32_t vertexCount) {
+        auto const& buffer = nvr.vertexBuffers[vertexBuffer];
+        auto start = reinterpret_cast<T const*>(buffer.data.data()) + firstVertex;
+        auto end = start + vertexCount;
+        vtx.insert(vtx.end(), start, end);
+    }
+
+    inline void load_nvr_vtx_t(RitoNVR const& nvr, std::vector<VertexTotal>& vtx, RitoNVR::VertexType t,
+                      uint32_t vertexBuffer, uint32_t firstVertex, uint32_t vertexCount) {
+        switch(t) {
+        case RitoNVR::VertexType::Default:
+            return load_nvr_vtx<RitoNVR::VertexDefault>(nvr, vtx,
+                                                        vertexBuffer, firstVertex, vertexCount);
+        case RitoNVR::VertexType::Position:
+            return load_nvr_vtx<RitoNVR::VertexPosition>(nvr, vtx,
+                                                         vertexBuffer, firstVertex, vertexCount);
+        case RitoNVR::VertexType::Uv2:
+            return load_nvr_vtx<RitoNVR::VertexUV2>(nvr, vtx,
+                                                    vertexBuffer, firstVertex, vertexCount);
+        case RitoNVR::VertexType::Color2:
+            return load_nvr_vtx<RitoNVR::VertexColor2>(nvr, vtx,
+                                                       vertexBuffer, firstVertex, vertexCount);
+        default:
+            return;
+        }
+    }
+
+    inline void load_nvr_mesh(RitoNVR const& nvr, std::vector<VertexTotal>& vtx,
+                       RitoNVR::Mesh const& mesh) {
+        auto const& mat = nvr.materials[mesh.material];
+        auto const vt = RitoNVR::VertexTypeFromMaterial(mat.type, mat.flags);
+        auto p0 = mesh.drawIndexPrimitives[0];
+        load_nvr_vtx_t(nvr, vtx, vt, p0.vertexBuffer, p0.firstVertex, p0.vertexCount);
+        auto p1 = mesh.drawIndexPrimitives[1];
+        load_nvr_vtx<RitoNVR::VertexPosition>(nvr, vtx, p1.vertexBuffer, p1.firstVertex, p1.vertexCount);
+    }
+
+    inline void load_nvr_node(RitoNVR const& nvr, std::vector<VertexTotal>& vtx,
+                       RitoNVR::Node const& node){
+        // Actual loading loads the nodes either as parents or childrens
+        // So only meshes from meshes that aren't perents but only children have their nodes loaded ??
+        if(node.meshCount) {
+            for(auto i = node.firstMesh; i < (node.firstMesh + node.meshCount); i++) {
+                load_nvr_mesh(nvr, vtx, nvr.meshes[static_cast<size_t>(i)]);
+            }
+        }
+    }
+
+    inline auto dump_vtxs(RitoNVR const& nvr) noexcept {
+        std::vector<VertexTotal> vtx{};
+        for(auto const& node: nvr.nodes) {
+            load_nvr_node(nvr, vtx, node);
+        }
+        return vtx;
+    }
+}
+
 
 #endif // RITONVR_HPP
