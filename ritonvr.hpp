@@ -4,7 +4,7 @@
 #include "types.hpp"
 
 struct RitoNVR {
-    enum MaterialType : uint32_t {
+    enum class MaterialType : uint32_t {
         Default = 0,
         Decal = 1,
         WallOfGrass = 2,
@@ -13,6 +13,7 @@ struct RitoNVR {
     };
 
     enum MaterialFlags : uint32_t {
+        None,
         Ground = 0x01,
         NoShadow = 0x02,
         VertAlpha = 0x04,
@@ -25,17 +26,17 @@ struct RitoNVR {
     struct MaterialOld {
         char name[260];
         MaterialType type;
-        std::array<float, 4> diffuseColor;
+        ColorF diffuseColor;
         char diffuseTextureName[260];
-        std::array<float, 4> emissiveColor;
+        ColorF emissiveColor;
         char emissiveTextureName[260];
     };
 
     struct Material {
         struct Channel {
-            std::array<float, 4> color;
+            ColorF color;
             char textureName[260];
-            std::array<std::array<float, 4>, 4> transformMtx44;
+            Mtx44 transformMtx44;
         };
         char name[260];
         MaterialType type;
@@ -43,96 +44,80 @@ struct RitoNVR {
         std::array<Channel, 8> channels;
     };
 
-    struct VertexBuffer {
-        enum VertexType : uint32_t {
-            Default = 0,
-            Position = 1,
-            Uv2 = 2,
-            Uv3 = 3,
-            Color2 = 4,
-            Decal = 5,
-            PosUv1 = 6,
-        };
-
-        struct VertexDefault {
-            std::array<float, 3> position;
-            std::array<float, 3> normal;
-            std::array<float, 2> textCoord0;
-            std::array<uint8_t, 4> color0;
-        };
-        struct VertexPosition {
-            std::array<float, 3> position;
-        };
-        struct VertexUV2 {
-            std::array<float, 3> position;
-            std::array<float, 3> normal;
-            std::array<float, 2> textCoord0;
-            std::array<float, 2> textCoord1;
-            std::array<uint8_t, 4> color0;
-        };
-        struct VertexUV3 {
-            std::array<float, 3> position;
-            std::array<float, 3> normal;
-            std::array<float, 2> textCoord0;
-            std::array<float, 2> textCoord1;
-            std::array<float, 2> textCoord2;
-            std::array<uint8_t, 4> color0;
-        };
-        struct VertexColor2 {
-            std::array<float, 3> position;
-            std::array<float, 3> normal;
-            std::array<float, 2> textCoord0;
-            std::array<uint8_t, 4> color0;
-            std::array<uint8_t, 4> color1;
-        };
-        struct VertexDecal {
-            std::array<float, 3> position;
-        };
-        struct VertexPositionUv1 {
-            std::array<float, 3> position;
-            std::array<float, 2> textCoord0;
-        };
-
-        inline constexpr static size_t VertexSizes[] = {
-            sizeof (VertexDefault),
-            sizeof (VertexPosition),
-            sizeof (VertexUV2),
-            sizeof (VertexUV3),
-            sizeof (VertexColor2),
-            sizeof (VertexDecal),
-            sizeof (VertexPositionUv1),
-        };
-
-        // if something called dipIndex is set to 1 then Type::Position is used instead
-        inline static constexpr VertexType typeFromMaterial(MaterialType type,
-                                                            MaterialFlags flags) noexcept {
-            switch (type) {
-                case MaterialType::Default:
-                    return flags & MaterialFlags::DualVtxColor ?
-                                VertexType::Color2 : VertexType::Default;
-                case MaterialType::Decal:
-                    return VertexType::Default;
-                case MaterialType::WallOfGrass:
-                    return VertexType::Default;
-                case MaterialType::FourBlend:
-                    return VertexType::Uv2;
-                case MaterialType::AntiBrush:
-                    return VertexType::Default;
-            }
+    enum class VertexType : uint32_t {
+        Default = 0,
+        Position = 1,
+        Uv2 = 2,
+        Uv3 = 3,
+        Color2 = 4,
+        Decal = 5,
+        PosUv1 = 6,
+    };
+    struct VertexDefault {
+        Vec3 position;
+        Vec3 normal;
+        Vec2 textCoord0;
+        ColorB color0;
+    };
+    struct VertexPosition {
+        Vec3 position;
+    };
+    struct VertexUV2 {
+        Vec3 position;
+        Vec3 normal;
+        Vec2 textCoord0;
+        Vec2 textCoord1;
+        ColorB color0;
+    };
+    struct VertexUV3 {
+        Vec3 position;
+        Vec3 normal;
+        Vec2 textCoord0;
+        Vec2 textCoord1;
+        Vec2 textCoord2;
+        ColorB color0;
+    };
+    struct VertexColor2 {
+        Vec3 position;
+        Vec3 normal;
+        Vec2 textCoord0;
+        ColorB color0;
+        ColorB color1;
+    };
+    struct VertexDecal {
+        Vec3 position;
+    };
+    struct VertexPositionUv1 {
+        Vec3 position;
+        Vec2 textCoord0;
+    };
+    inline static constexpr VertexType VertexTypeFromMaterial(MaterialType type,
+                                                              MaterialFlags flags) noexcept {
+        switch (type) {
+            case MaterialType::Default:
+                return flags & MaterialFlags::DualVtxColor ?
+                            VertexType::Color2 : VertexType::Default;
+            case MaterialType::Decal:
+                return VertexType::Default;
+            case MaterialType::WallOfGrass:
+                return VertexType::Default;
+            case MaterialType::FourBlend:
+                return VertexType::Uv2;
+            case MaterialType::AntiBrush:
+                return VertexType::Default;
         }
+        return VertexType::Default;
+    }
 
+    struct VertexBuffer {
+        // if something called dipIndex is set to 1 then Type::Position is used instead
         std::vector<uint8_t> data;
     };
 
     struct Sphere {
-        std::array<float, 3> centerPoint;
+        Vec3 centerPoint;
         float radius;
     };
-    struct Box3 {
-        std::array<float, 3> minPoint;
-        std::array<float, 3> maxPoint;
-    };
-
     struct DrawIndexPrimitive {
         uint32_t vertexBuffer;
         uint32_t firstVertex;
@@ -144,7 +129,7 @@ struct RitoNVR {
     struct MeshOld {
         int32_t m_QualityLevel;
         Sphere boundingSphere;
-        Box3 boundingBox;
+        Box3D boundingBox;
         uint32_t m_Material;
         std::array<DrawIndexPrimitive, 2> drawIndexPrimitives;
     };
@@ -152,18 +137,18 @@ struct RitoNVR {
         int32_t m_QualityLevel;
         uint32_t m_Flags;
         Sphere boundingSphere;
-        Box3 boundingBox;
+        Box3D boundingBox;
         uint32_t m_Material;
         std::array<DrawIndexPrimitive, 2> drawIndexPrimitives;
     };
 
     // some of those can contain -1 as probably as optional value
     struct Node {
-        Box3 boundingBox;
-        uint32_t firstMesh;
-        uint32_t meshCount;
-        uint32_t firstChildNode;
-        uint32_t childNodeCount;
+        Box3D boundingBox;
+        int32_t firstMesh;
+        int32_t meshCount;
+        int32_t firstChildNode;
+        int32_t childNodeCount;
     };
 
     std::vector<MaterialOld> materialsOld;

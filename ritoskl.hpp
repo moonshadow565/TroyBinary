@@ -6,7 +6,7 @@
 struct RitoSKL {
     struct Bone {
         char boneName[32];
-        uint32_t parentId;
+        int32_t parentId;
         float boneLength;
         std::array<float, 4> col0;
         std::array<float, 4> col1;
@@ -17,8 +17,6 @@ struct RitoSKL {
         };
     };
 
-    std::array<char, 8> magic;
-    uint32_t version;
     uint32_t skeletonID;
     uint32_t numBones;
     std::vector<Bone> bones;
@@ -26,6 +24,9 @@ struct RitoSKL {
     std::vector<uint32_t> shaderBones;
 
     int load(File const& file) noexcept {
+        std::array<char, 8> magic;
+        uint32_t version;
+
         if(!file.read(magic) || !file.read(version)) {
             return -1;
         }

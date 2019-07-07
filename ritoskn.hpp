@@ -12,25 +12,42 @@ struct RitoSKN {
         uint32_t indexCount;
     };
 
-    struct Vertex {
-        std::array<float, 3> position;
+    struct VertexBasic {
+        Vec3 position;
         std::array<uint8_t, 4> boneIndices;
         std::array<float, 4> weights;
-        std::array<float, 3> normal;
-        std::array<float, 2> textureCord;
+        Vec3 normal;
+        Vec2 textureCord;
+    };
+    struct VertexWithTangent {
+        Vec3 position;
+        std::array<uint8_t, 4> boneIndices;
+        std::array<float, 4> weights;
+        Vec3 normal;
+        Vec2 textureCord;
+        Vec4 tangent;
+    };
+    struct VertexWithColor {
+        Vec3 position;
+        std::array<uint8_t, 4> boneIndices;
+        std::array<float, 4> weights;
+        Vec3 normal;
+        Vec2 textureCord;
+        ColorB color;
     };
 
-    uint32_t magic;
-    uint32_t version;
+
     uint32_t submeshCount;
     std::vector<SubMesh> submeshes;
     uint32_t numIndices;
     uint32_t numVertices;
     std::vector<uint16_t> indexData;
-    std::vector<Vertex> vertexData;
+    std::vector<VertexBasic> vertexData;
     std::array<float, 3> pivotPoint;
 
     int load(File const& file) noexcept {
+        uint32_t magic;
+        uint32_t version;
         if(!file.read(magic) || !file.read(version)) {
             return -1;
         }

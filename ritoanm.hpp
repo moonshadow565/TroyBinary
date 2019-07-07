@@ -6,7 +6,7 @@
 struct RitoANM {
     struct Frame {
         std::array<float, 4> quaternion;
-        std::array<float, 3> point;
+        Vec3 point;
     };
 
     struct Track {
@@ -16,8 +16,6 @@ struct RitoANM {
         std::vector<Frame> frames;
     };
 
-    std::array<char, 8> magic;
-    uint32_t version;
     uint32_t skeletonID;
     int32_t numTracks;
     int32_t numFrames;
@@ -53,6 +51,8 @@ struct RitoANM {
     }
 
     int load(File const& file) noexcept {
+        std::array<char, 8> magic;
+        uint32_t version;
         if(!file.read(magic) || !file.read(version)) {
             return -1;
         }

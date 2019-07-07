@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdio>
 #include <vector>
+#include <optional>
 
 struct File {
     FILE* file;
@@ -10,19 +11,26 @@ struct File {
         end = static_cast<size_t>(fseek(file, 0, SEEK_END));
         fseek(file, 0, SEEK_SET);
     }
-
-    inline ~File() {
+    File(File && other) noexcept : file(other.file), end(other.end) {
+        other.file = nullptr;
+        other.end = 0;
+    }
+    inline ~File() noexcept {
         if(file) {
             fclose(file);
         }
     }
-
-    // Don't want to copy this by accident and don't need full wrapper
     File(File const&) = delete;
-    File(File &&) = delete;
     void operator=(File const&) = delete;
     void operator=(File &&) = delete;
 
+    static std::optional<File> readb(char const* name) noexcept {
+        if(FILE* f = nullptr; fopen_s(&f, name, "rb") || !f) {
+            return std::nullopt;
+        } else {
+            return File(f);
+        }
+    }
 
     template<typename T>
     inline bool read(T* data, size_t count) const noexcept {
