@@ -13,11 +13,11 @@ struct RitoSKN {
     };
 
     struct Vertex {
-        std::array<float, 3> pos;
+        std::array<float, 3> position;
         std::array<uint8_t, 4> boneIndices;
         std::array<float, 4> weights;
         std::array<float, 3> normal;
-        std::array<float, 2> uv;
+        std::array<float, 2> textureCord;
     };
 
     uint32_t magic;
@@ -28,7 +28,7 @@ struct RitoSKN {
     uint32_t numVertices;
     std::vector<uint16_t> indexData;
     std::vector<Vertex> vertexData;
-    Vec3 pivotPoint;
+    std::array<float, 3> pivotPoint;
 
     int load(File const& file) noexcept {
         if(!file.read(magic) || !file.read(version)) {

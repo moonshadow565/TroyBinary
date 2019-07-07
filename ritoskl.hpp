@@ -43,7 +43,6 @@ struct RitoSKL {
         if(!file.read(bones, numBones)) {
             return -6;
         }
-        // rigpose
         if(version == 2) {
             if(!file.read(numShaderBones)) {
                 return -7;
