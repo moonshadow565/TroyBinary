@@ -8,6 +8,11 @@ add_executable(TroyBinary
     main.cpp
     inibin.h
     inibin.cpp
+    file.hpp
+    ritoskn.hpp
+    ritoskl.hpp
+    ritoanm.hpp
+    ritonvr.hpp
     particle/complex.h
     particle/complex.cpp
     particle/fields.h

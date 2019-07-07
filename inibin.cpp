@@ -1,53 +1,11 @@
 #include "inibin.h"
 #include <cstdio>
 #include <type_traits>
+#include "file.hpp"
 
 using IniMap = Ini::IniMap;
 
 namespace {
-struct File {
-    FILE* file = nullptr;
-    size_t end = 0;
-
-    inline ~File() {
-        if(file) {
-            fclose(file);
-        }
-    }
-
-    // Don't want to copy this by accident and don't need full wrapper
-    File(File const&) = delete;
-    File(File &&) = delete;
-    void operator=(File const&) = delete;
-    void operator=(File &&) = delete;
-
-
-    template<typename T>
-    bool read(T* data, size_t count) const noexcept {
-        if(auto const result = fread(data, sizeof(T), count, file);
-                result != count) {
-            return false;
-        }
-        return true;
-    }
-
-    template<typename T>
-    bool read(std::vector<T>& value, size_t count) const noexcept {
-        auto const cur = static_cast<size_t>(ftell(file));
-        auto const vec_size = count * sizeof(T);
-        if(vec_size > (end - cur)) {
-            return false;
-        }
-        value.resize(count);
-        return read(&value[0], count);
-    }
-
-    template<typename T>
-    inline bool read(T& value) const noexcept {
-        return read(&value, 1);
-    }
-};
-
 template<typename T, bool mult = false>
 int read_numbers(File const& file, IniMap& ini) noexcept {
     uint16_t count = {};
@@ -151,12 +109,11 @@ int read_strings(File const& file, IniMap& ini,
 }
 
 inline int read_v2(const char *filename, IniMap& ini) noexcept {
-    File file = {};
-    if(fopen_s(&file.file, filename, "rb")) {
+    FILE *f;
+    if(fopen_s(&f, filename, "rb")) {
         return -1;
     }
-    file.end = static_cast<size_t>(fseek(file.file, 0, SEEK_END));
-    fseek(file.file, 0, SEEK_SET);
+    File file = {f};
 
     uint8_t version;
     if(!file.read(version)) {

@@ -6,8 +6,6 @@ namespace RitoParticle {
     struct SimpleParticleInstance;
     struct SimpleEmitterInstance;
     struct SimpleParticleInstances;
-
-
 }
 
 
