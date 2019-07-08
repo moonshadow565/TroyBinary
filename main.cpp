@@ -1,10 +1,12 @@
 #include <iostream>
+#include <filesystem>
 #include "inibin.h"
 #include "particle/system.h"
 #include "ritoskn.hpp"
 #include "ritoskl.hpp"
 #include "ritoanm.hpp"
 #include "ritonvr.hpp"
+
 
 using namespace std;
 
@@ -18,6 +20,7 @@ int main()
     system.load(ini);
 
     */
+    /*
     if(auto file = File::readb("room.nvr"); file) {
         RitoNVR nvr{};
         nvr.load(*file);
@@ -34,6 +37,11 @@ int main()
     }
 
     if(auto file = File::readb("Akali_nurse.skn"); file) {
+        RitoSKN skn{};
+        skn.load(*file);
+    }
+    */
+    if(auto file = File::readb("pyke_base.skn"); file) {
         RitoSKN skn{};
         skn.load(*file);
     }

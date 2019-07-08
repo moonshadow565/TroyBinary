@@ -10,7 +10,7 @@ struct RitoANM {
     };
 
     struct Track {
-        char name[32];
+        std::array<char, 32> name;
         // flag 2 is transform from initial
         uint32_t flags;
         std::vector<Frame> frames;

@@ -131,6 +131,7 @@ struct RitoSKN {
         } else {
             pivotPoint = {};
         }
+        auto end = ftell(file.file);
         return 0;
     }
 };

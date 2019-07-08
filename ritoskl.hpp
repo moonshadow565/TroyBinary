@@ -5,7 +5,7 @@
 
 struct RitoSKL {
     struct Bone {
-        char boneName[32];
+        std::array<char, 32> boneName;
         int32_t parentId;
         float boneLength;
         std::array<float, 4> col0;
