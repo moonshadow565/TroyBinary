@@ -78,6 +78,10 @@ struct Box3D {
     Vec3 min;
     Vec3 max;
 };
+struct Sphere {
+    Vec3 centerPoint;
+    float radius;
+};
 
 #define ColorFInf ColorF{INFINITY, INFINITY, INFINITY, INFINITY}
 #define Vec4Inf Vec4{INFINITY, INFINITY, INFINITY, INFINITY}

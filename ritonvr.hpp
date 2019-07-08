@@ -59,11 +59,6 @@ struct RitoNVR {
         {}
     };
 
-    struct Sphere {
-        Vec3 centerPoint;
-        float radius;
-    };
-
     struct DrawIndexPrimitive {
         uint32_t vertexBuffer;
         uint32_t firstVertex;
