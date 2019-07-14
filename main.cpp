@@ -21,9 +21,9 @@ int main()
     system.load(ini);
 
     */
-    if(auto file = File::readb("Anivia3/Animations/anivia_laugh.anm"); file) {
-        RitoResource::Animation anm {};
-        anm.load(*file);
+    if(auto file = File::readb("Ashe3/Ashe.skl"); file) {
+        RitoResource::Skeleton test {};
+        test.load(*file);
     }
     return 0;
 }

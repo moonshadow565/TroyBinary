@@ -57,7 +57,6 @@ namespace RitoResource {
             auto const tickStartAddr = data.data() + v4.tickDataOffset - sizeof(v4);
             auto const tickStart = reinterpret_cast<TickSaved const*>(tickStartAddr);
 
-
             for(uint32_t c = 0; c < v4.numChannels; c++) {
                 auto& channel = channels.emplace_back();
                 auto& ticks = channel.ticks;
@@ -86,6 +85,109 @@ namespace RitoResource {
                 return -1;
             }
             return load_v4(file);
+
+            return 0;
+        }
+    };
+
+    struct Skeleton {
+        struct Form {
+            Vec3 position;
+            Vec3 scale;
+            Quat orientation;
+        };
+        struct Joint {
+            uint16_t flags;
+            uint16_t jointIndx;
+            int16_t parentIndx;
+            uint16_t pad;
+            uint32_t nameHash;
+            float radius;
+            Form parentOffset;
+            Form invRootOffset;
+            std::string name;
+        };
+        std::string name;
+        std::string assetName;
+        std::vector<uint32_t> shaderBones;
+        std::vector<Joint> joints;
+        int load(File const& file) {
+            struct V0{
+                uint32_t resourceSize;
+                uint32_t formatToken;
+                uint32_t version;
+                uint16_t flags;
+                uint16_t numJoints;
+                uint32_t numShaderBones;
+                uint32_t jointArrOffset;
+                uint32_t jointHashIdxOffset;
+                uint32_t shaderJointArrOffset;
+                uint32_t nameOffset;
+                uint32_t assetNameOffset;
+                uint32_t jointNamesOffset;
+                uint32_t extBuffer[5];
+            };
+            struct JointHashSaved {
+                uint16_t jointIndex;
+                uint16_t pad;
+                uint32_t jointHash;
+            };
+            struct JointSaved {
+                  uint16_t flags;
+                  uint16_t jointNdx;
+                  int16_t parentIndx;
+                  uint16_t pad;
+                  uint32_t nameHash;
+                  float radius;
+                  Form parentOffset;
+                  Form invRootOffset;
+                  uint32_t name;
+            };
+            uint32_t resourceSize;
+            file.read(resourceSize);
+            file.seek_cur(-sizeof(resourceSize));
+
+            std::vector<uint8_t> data;
+            data.resize(resourceSize);
+            file.read(data.data(), data.size());
+
+            auto const& v0 = *reinterpret_cast<V0 const*>(data.data());
+            auto const jointArrAddr = data.data() + v0.jointArrOffset;
+            auto const joinHashIdxAddr = data.data() + v0.jointHashIdxOffset;
+            auto const shaderJointArrAddr = data.data() + v0.shaderJointArrOffset;
+            auto const nameAddr = data.data() + v0.nameOffset;
+            auto const assetNameAddr = data.data() + v0.assetNameOffset;
+            auto const jointNamesAddr =  data.data() + v0.jointNamesOffset;
+
+            if(v0.nameOffset != 0u && v0.nameOffset != 0xFFFFFFFFu) {
+                name = reinterpret_cast<char const*>(nameAddr);
+            }
+            if(v0.assetNameOffset != 0u && v0.assetNameOffset != 0xFFFFFFFFu) {
+                assetName = reinterpret_cast<char const*>(assetNameAddr);
+            }
+            auto const jointSavedArr = reinterpret_cast<JointSaved const*>(jointArrAddr);
+            // auto const jointHashIdxArr = reinterpret_cast<JointHashSaved const*>(joinHashIdxAddr);
+            auto const shaderJointArr = reinterpret_cast<uint32_t const*>(shaderJointArrAddr);
+            // auto const jointNamesArr = reinterpret_cast<char const*>(jointNamesAddr);
+
+            joints.reserve(v0.numJoints);
+            shaderBones =  { shaderJointArr , shaderJointArr + v0.numShaderBones };
+
+            for(uint32_t i = 0; i < v0.numJoints; i++) {
+                auto const& saved = jointSavedArr[i];
+                auto const name = reinterpret_cast<char const*>(&saved.name) + saved.name;
+                joints.push_back(Joint {
+                                     saved.flags,
+                                     saved.jointNdx,
+                                     saved.parentIndx,
+                                     saved.pad,
+                                     saved.nameHash,
+                                     saved.radius,
+                                     saved.parentOffset,
+                                     saved.invRootOffset,
+                                     name
+                                 });
+            }
 
             return 0;
         }
