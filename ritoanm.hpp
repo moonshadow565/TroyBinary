@@ -48,6 +48,7 @@ struct RitoANM {
                 return -9;
             }
         }
+        auto end = file.tell();
         return 0;
     }
 

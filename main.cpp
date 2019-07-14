@@ -6,11 +6,10 @@
 #include "ritoskl.hpp"
 #include "ritoanm.hpp"
 #include "ritonvr.hpp"
+#include "ritoresource.hpp"
 
 
 using namespace std;
-
-
 
 int main()
 {
@@ -22,37 +21,9 @@ int main()
     system.load(ini);
 
     */
-    /*
-    if(auto file = File::readb("room.nvr"); file) {
-        RitoNVR nvr{};
-        nvr.load(*file);
-    }
-    if(auto file = File::readb("Akali_Attack1.anm"); file) {
-        RitoANM anm{};
+    if(auto file = File::readb("Anivia3/Animations/anivia_laugh.anm"); file) {
+        RitoResource::Animation anm {};
         anm.load(*file);
     }
-    */
-    if(auto file = File::readb("Teemo/Teemo.skl"); file) {
-        RitoSKL skl{};
-        skl.load(*file);
-    }
-    /*
-    if(auto file = File::readb("Akali_nurse.skl"); file) {
-        RitoSKL skl{};
-        skl.load(*file);
-    }
-    */
-    /*
-    if(auto file = File::readb("Akali_nurse.skn"); file) {
-        RitoSKN skn{};
-        skn.load(*file);
-    }
-    */
-    /*
-    if(auto file = File::readb("pyke_base.skn"); file) {
-        RitoSKN skn{};
-        skn.load(*file);
-    }
-    */
     return 0;
 }

@@ -14,6 +14,7 @@ add_executable(TroyBinary
     ritoanm.hpp
     ritonvr.hpp
     ritomath.hpp
+    ritoresource.hpp
     particle/complex.h
     particle/complex.cpp
     particle/fields.h
