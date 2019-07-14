@@ -47,7 +47,6 @@ namespace RitoResource {
             file.read(v4);
             data.resize(v4.resourceSize - sizeof(v4));
             file.read(data.data(), data.size());
-            channels.resize(v4.numChannels);
 
             auto const vecStartAddr = data.data() + v4.vectorPaletteOffset - sizeof(v4);
             auto const vecStart = reinterpret_cast<Vec3 const*>(vecStartAddr);
@@ -59,11 +58,12 @@ namespace RitoResource {
             auto const tickStart = reinterpret_cast<TickSaved const*>(tickStartAddr);
 
 
-            for(auto& channel: channels) {
+            for(uint32_t c = 0; c < v4.numChannels; c++) {
+                auto& channel = channels.emplace_back();
                 auto& ticks = channel.ticks;
                 ticks.reserve(v4.numTicks);
                 for(uint32_t t = 0; t < v4.numTicks; t++) {
-                    auto const& savedTick = tickStart[t];
+                    auto const& savedTick = tickStart[c * v4.numTicks + t];
                     ticks.push_back(Channel::Tick {
                                         savedTick.boneHash,
                                         vecStart[savedTick.posIndx],
