@@ -64,6 +64,7 @@ struct Vec2 {
         return *(reinterpret_cast<float const *>(this) + idx);
     }
 };
+
 struct Mtx44 {
     using array_t = float[4];
     float m[4][4] = {};
@@ -82,6 +83,16 @@ struct Sphere {
     Vec3 centerPoint;
     float radius;
 };
+struct Quat {
+    float x,y,z,w;
+    inline float &operator[](size_t idx) & {
+        return *(reinterpret_cast<float *>(this) + idx);
+    }
+    inline float const &operator[](size_t idx) const & {
+        return *(reinterpret_cast<float const *>(this) + idx);
+    }
+};
+
 
 #define ColorFInf ColorF{INFINITY, INFINITY, INFINITY, INFINITY}
 #define Vec4Inf Vec4{INFINITY, INFINITY, INFINITY, INFINITY}

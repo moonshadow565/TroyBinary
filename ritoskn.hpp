@@ -2,6 +2,9 @@
 #define RITOSKN_H
 #include "file.hpp"
 #include "types.hpp"
+#include "ritomath.hpp"
+#include <vector>
+#include <variant>
 
 struct RitoSKN {
     struct SubMesh {
@@ -131,7 +134,6 @@ struct RitoSKN {
         } else {
             pivotPoint = {};
         }
-        auto end = ftell(file.file);
         return 0;
     }
 };

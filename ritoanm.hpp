@@ -2,6 +2,7 @@
 #define RITOANM_HPP
 #include "file.hpp"
 #include "types.hpp"
+#include "ritomath.hpp"
 
 struct RitoANM {
     struct Frame {

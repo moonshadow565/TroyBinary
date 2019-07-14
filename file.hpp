@@ -32,6 +32,22 @@ struct File {
         }
     }
 
+    inline int64_t tell() const noexcept {
+        return ftell(file);
+    }
+
+    inline int64_t seek_beg(int64_t offset) const noexcept {
+        return fseek(file, static_cast<long int>(offset), SEEK_SET);
+    }
+
+    inline int64_t seek_cur(int64_t offset) const noexcept {
+        return fseek(file, static_cast<long int>(offset), SEEK_CUR);
+    }
+
+    inline int64_t seek_end(int64_t offset) const noexcept {
+        return fseek(file, static_cast<long int>(offset), SEEK_END);
+    }
+
     template<typename T>
     inline bool read(T* data, size_t count) const noexcept {
         if(auto const result = fread(data, sizeof(T), count, file);

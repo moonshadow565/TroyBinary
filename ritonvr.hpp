@@ -2,6 +2,7 @@
 #define RITONVR_HPP
 #include "file.hpp"
 #include "types.hpp"
+#include "ritomath.hpp"
 #include <variant>
 #include <algorithm>
 
@@ -48,6 +49,8 @@ struct RitoNVR {
         Material() = default;
         Material(Material const&) noexcept = default;
         Material(Material&&) noexcept = default;
+        Material& operator=(Material const&) = default;
+        Material& operator=(Material&&) noexcept = default;
         Material(Old const& old) noexcept
             : name (old.name),
               type (old.type),
@@ -86,6 +89,8 @@ struct RitoNVR {
         Mesh() = default;
         Mesh(Mesh const&) = default;
         Mesh(Mesh&&) = default;
+        Mesh& operator=(Mesh const&) = default;
+        Mesh& operator=(Mesh&&) noexcept = default;
         Mesh(Old const& other) noexcept
             : qualityLevel(other.qualityLevel),
               flags(),
